@@ -19,7 +19,7 @@ const nextConfig = {
   },
 
   outputFileTracing: false,
-  staticPageGenerationTimeout: 120,
+  staticPageGenerationTimeout: 300,
 
   i18n: {
     // These are all the locales you want to support in your application.
