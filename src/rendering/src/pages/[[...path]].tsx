@@ -84,6 +84,7 @@ const SitecorePage = ({
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
+  console.log('getStaticProps called, DISABLE_SSG_FETCH:', process.env.DISABLE_SSG_FETCH);
   if (process.env.DISABLE_SSG_FETCH) {
     return {
       props: {
