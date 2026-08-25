@@ -3,6 +3,7 @@
   "description": "PLAY! Summit and PLAY! SHOP websites",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@9.15.4",
   "config": {
     "appName": "playwebsite",
     "rootPlaceholders": [
@@ -73,7 +74,10 @@
     "react-redux": "^8.0.4",
     "sass": "^1.52.3",
     "sass-alias": "^1.0.5",
-    "sharp": "^0.33.5"
+    "sharp": "0.33.5"
+  },
+  "overrides": {
+    "sharp": "0.33.5"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
