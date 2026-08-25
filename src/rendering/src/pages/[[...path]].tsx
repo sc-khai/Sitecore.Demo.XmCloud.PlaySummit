@@ -2,7 +2,12 @@ import { useEffect } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import NotFound from 'src/NotFound';
 import Layout from 'src/Layout';
-import { SitecoreContext, ComponentPropsContext } from '@sitecore-jss/sitecore-jss-nextjs';
+import {
+  SitecoreContext,
+  ComponentPropsContext,
+  SiteInfo,
+  LayoutServiceData,
+} from '@sitecore-jss/sitecore-jss-nextjs';
 import { handleEditorFastRefresh } from '@sitecore-jss/sitecore-jss-nextjs/utils';
 import { SitecorePageProps } from 'lib/page-props';
 import { sitecorePagePropsFactory } from 'lib/page-props-factory';
@@ -79,36 +84,36 @@ const SitecorePage = ({
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-    const timeoutMs = Number(process.env.SSG_PAGE_DATA_TIMEOUT_MS || 120000);
+  const timeoutMs = Number(process.env.SSG_PAGE_DATA_TIMEOUT_MS || 120000);
 
-    const props = await Promise.race([
-        sitecorePagePropsFactory.create(context),
-        new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error(`getStaticProps timeout after ${timeoutMs}ms`)), timeoutMs)
-        ),
-    ]).catch(() => null);
+  const props = await Promise.race([
+    sitecorePagePropsFactory.create(context),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`getStaticProps timeout after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]).catch(() => null);
 
-    if (!props) {
-        return {
-            props: {
-                notFound: true,
-                site: { name: '', language: context.locale || 'en' } as any,
-                locale: context.locale || 'en',
-                dictionary: {},
-                componentProps: {},
-                layoutData: { sitecore: { context: {}, route: null } } as any,
-                headLinks: [],
-            },
-            revalidate: 5,
-            notFound: true,
-        };
-    }
-
+  if (!props) {
     return {
-        props,
-        revalidate: 5,
-        notFound: props.notFound,
+      props: {
+        notFound: true,
+        site: { name: '', language: context.locale || 'en' } as SiteInfo,
+        locale: context.locale || 'en',
+        dictionary: {},
+        componentProps: {},
+        layoutData: { sitecore: { context: {}, route: null } } as LayoutServiceData,
+        headLinks: [],
+      } as SitecorePageProps,
+      revalidate: 5,
+      notFound: true,
     };
+  }
+
+  return {
+    props,
+    revalidate: 5,
+    notFound: props.notFound,
+  };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
