@@ -84,6 +84,20 @@ const SitecorePage = ({
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
+  if (process.env.DISABLE_SSG_FETCH) {
+    return {
+      props: {
+        notFound: false,
+        site: {} as SiteInfo,
+        locale: context.locale || 'en',
+        dictionary: {},
+        componentProps: {},
+        layoutData: { sitecore: { context: {}, route: null } } as LayoutServiceData,
+        headLinks: [],
+      } as SitecorePageProps,
+      revalidate: 5,
+    };
+  }
   const timeoutMs = Number(process.env.SSG_PAGE_DATA_TIMEOUT_MS || 120000);
 
   const props = await Promise.race([
