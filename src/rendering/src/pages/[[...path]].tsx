@@ -33,16 +33,18 @@ const SitecorePage = ({
 
   // DEMO TEAM CUSTOMIZATION - Search SDK integration
   const pageUri = usePathname();
+  const routeItemId = layoutData?.sitecore?.route?.itemId;
   useEffect(() => {
     (async () => {
+      if (!routeItemId) return;
       if (isSearchSDKEnabled) {
         PageController.getContext().setPageUri(pageUri);
         await trackEntityPageViewEvent('content', {
-          items: [{ id: layoutData.sitecore.route.itemId }],
+          items: [{ id: routeItemId }],
         });
 
         // Save corresponding pageUri to session storage as a workaround because Search API does not return custom attributes
-        sessionStorage.setItem(layoutData.sitecore.route.itemId, pageUri);
+        sessionStorage.setItem(routeItemId, pageUri);
 
         // Fetch the Sitecore Search user profile data
         const userProfileData = await fetchUserProfileData();
@@ -54,7 +56,7 @@ const SitecorePage = ({
         logSearchProfileData(userProfileData);
       }
     })();
-  }, [pageUri, layoutData.sitecore.route.itemId]);
+  }, [pageUri, routeItemId]);
   // END CUSTOMIZATION
 
   if (notFound || !layoutData.sitecore.route) {
@@ -77,12 +79,36 @@ const SitecorePage = ({
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const props = await sitecorePagePropsFactory.create(context);
-  return {
-    props,
-    revalidate: 5, // In seconds
-    notFound: props.notFound, // Returns custom 404 page with a status code of 404 when true
-  };
+    const timeoutMs = Number(process.env.SSG_PAGE_DATA_TIMEOUT_MS || 120000);
+
+    const props = await Promise.race([
+        sitecorePagePropsFactory.create(context),
+        new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error(`getStaticProps timeout after ${timeoutMs}ms`)), timeoutMs)
+        ),
+    ]).catch(() => null);
+
+    if (!props) {
+        return {
+            props: {
+                notFound: true,
+                site: { name: '', language: context.locale || 'en' } as any,
+                locale: context.locale || 'en',
+                dictionary: {},
+                componentProps: {},
+                layoutData: { sitecore: { context: {}, route: null } } as any,
+                headLinks: [],
+            },
+            revalidate: 5,
+            notFound: true,
+        };
+    }
+
+    return {
+        props,
+        revalidate: 5,
+        notFound: props.notFound,
+    };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
