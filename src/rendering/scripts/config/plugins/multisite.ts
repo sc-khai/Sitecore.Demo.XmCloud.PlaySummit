@@ -19,7 +19,10 @@ class MultisitePlugin implements ConfigPlugin {
       const siteInfoService = new GraphQLSiteInfoService({
         clientFactory: createGraphQLClientFactory(config),
       });
-      sites = await siteInfoService.fetchSiteInfo();
+      const timeoutPromise = new Promise<SiteInfo[]>((resolve) =>
+        setTimeout(() => resolve([]), 10000)
+      );
+      sites = await Promise.race([siteInfoService.fetchSiteInfo(), timeoutPromise]);
     } catch (error) {
       console.error(chalk.red('Error fetching site information'));
       console.error(error);

@@ -3,7 +3,6 @@
   "description": "PLAY! Summit and PLAY! SHOP websites",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@9.15.4",
   "config": {
     "appName": "playwebsite",
     "rootPlaceholders": [
