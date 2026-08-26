@@ -18,9 +18,6 @@ const nextConfig = {
     PUBLIC_URL: publicUrl,
   },
 
-  outputFileTracing: false,
-  staticPageGenerationTimeout: 300,
-
   i18n: {
     // These are all the locales you want to support in your application.
     // These should generally match (or at least be a subset of) those in Sitecore.
